@@ -1,43 +1,42 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Private Chat</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Private Chat</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="app">
-    <header class="top">
-      <div>
-        <h1>Private Chat</h1>
-        <div id="status" class="status">Offline</div>
-      </div>
-      <button id="copyLink" class="secondary hidden">Copy link</button>
-    </header>
+<main class="app">
+<header class="top">
+  <div>
+    <h1>Private Chat</h1>
+    <div id="status" class="status">Offline</div>
+  </div>
+  <button id="copyLink" class="secondary hidden">Copy link</button>
+</header>
 
-    <section id="home" class="card">
-      <p class="muted">A tiny one-to-one chat. No account required.</p>
-      <button id="create">Create chat</button>
-    </section>
+<section id="home" class="card">
+  <p class="muted">A tiny one-to-one chat. No account required.</p>
+  <button id="create">Create chat</button>
+</section>
 
-    <section id="waiting" class="card hidden">
-      <p class="muted">Send this link to the other person:</p>
-      <div class="linkbox" id="inviteLink"></div>
-      <button id="copyInvite">Copy link</button>
-      <p id="waitingText" class="muted small">Waiting for them to open the link…</p>
-    </section>
+<section id="waiting" class="card hidden">
+  <p class="muted">Send this link to the other person:</p>
+  <div class="linkbox" id="inviteLink"></div>
+  <button id="copyInvite">Copy link</button>
+  <p id="waitingText" class="muted small">Waiting for them to open the link… Keep this page open.</p>
+</section>
 
-    <section id="chat" class="chat hidden">
-      <div id="messages" class="messages"></div>
-      <form id="composer" class="composer">
-        <input id="message" autocomplete="off" placeholder="Message…" maxlength="2000">
-        <button type="submit">Send</button>
-      </form>
-    </section>
-  </main>
-
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-  <script src="app.js"></script>
+<section id="chat" class="chat hidden">
+  <div id="messages" class="messages"></div>
+  <form id="composer" class="composer">
+    <input id="message" autocomplete="off" placeholder="Message…" maxlength="2000">
+    <button type="submit">Send</button>
+  </form>
+</section>
+</main>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
