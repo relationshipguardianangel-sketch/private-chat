@@ -1,57 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Private Chat</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Private Chat</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-    <header>
+  <main class="app">
+    <header class="top">
+      <div>
         <h1>Private Chat</h1>
-        <span id="status" class="status disconnected">Disconnected</span>
+        <div id="status" class="status">Offline</div>
+      </div>
+      <button id="copyLink" class="secondary hidden">Copy link</button>
     </header>
 
-    <section id="setup">
-        <p class="description">
-            Create a private peer-to-peer chat. Messages are sent directly
-            between the two browsers.
-        </p>
-
-        <button id="createBtn">Create Chat</button>
-
-        <div id="offerSection" class="hidden">
-            <h3>Step 1 — Send this code</h3>
-            <textarea id="offerCode" readonly placeholder="Your connection code will appear here"></textarea>
-            <button id="copyOfferBtn">Copy Code</button>
-
-            <h3>Step 2 — Paste their response</h3>
-            <textarea id="answerInput" placeholder="Paste the response here"></textarea>
-            <button id="connectBtn">Connect</button>
-        </div>
-
-        <div id="joinSection">
-            <h3>Joining someone else's chat?</h3>
-            <textarea id="offerInput" placeholder="Paste their connection code here"></textarea>
-            <button id="joinBtn">Join Chat</button>
-
-            <div id="answerSection" class="hidden">
-                <h3>Send this response back</h3>
-                <textarea id="answerCode" readonly></textarea>
-                <button id="copyAnswerBtn">Copy Response</button>
-            </div>
-        </div>
+    <section id="home" class="card">
+      <p class="muted">A tiny one-to-one chat. No account required.</p>
+      <button id="create">Create chat</button>
     </section>
 
-    <section id="chat" class="hidden">
-        <div id="messages"></div>
-        <div class="input-area">
-            <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off">
-            <button id="sendBtn">Send</button>
-        </div>
+    <section id="waiting" class="card hidden">
+      <p class="muted">Send this link to the other person:</p>
+      <div class="linkbox" id="inviteLink"></div>
+      <button id="copyInvite">Copy link</button>
+      <p id="waitingText" class="muted small">Waiting for them to open the link…</p>
     </section>
-</div>
-<script src="app.js"></script>
+
+    <section id="chat" class="chat hidden">
+      <div id="messages" class="messages"></div>
+      <form id="composer" class="composer">
+        <input id="message" autocomplete="off" placeholder="Message…" maxlength="2000">
+        <button type="submit">Send</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
