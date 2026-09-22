@@ -1,172 +1,156 @@
 const $ = id => document.getElementById(id);
 
-const home = $("home");
-const waiting = $("waiting");
-const chat = $("chat");
-const statusEl = $("status");
-const inviteLink = $("inviteLink");
-const messages = $("messages");
-const messageInput = $("message");
-const copyInvite = $("copyInvite");
-const copyLink = $("copyLink");
+const home=$("home"), waiting=$("waiting"), chat=$("chat");
+const statusEl=$("status"), inviteLink=$("inviteLink"), messages=$("messages");
+const messageInput=$("message"), copyInvite=$("copyInvite"), copyLink=$("copyLink");
 
-let peer = null;
-let connection = null;
-let isCreator = false;
+let peer=null, connection=null, room=null, reconnectTimer=null;
+let role=null;
 
-function setStatus(text) {
-  statusEl.textContent = text;
+const PEER_OPTIONS={debug:1, pingInterval:10000};
+
+function setStatus(text){statusEl.textContent=text;}
+
+function randomId(){
+  const b=new Uint8Array(16); crypto.getRandomValues(b);
+  return [...b].map(x=>x.toString(16).padStart(2,"0")).join("");
 }
 
-function randomId() {
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return [...bytes].map(b => b.toString(16).padStart(2, "0")).join("");
+function roomFromUrl(){return new URLSearchParams(location.search).get("room");}
+
+function makeInvite(r){
+  const u=new URL(location.href);
+  u.search=""; u.hash=""; u.searchParams.set("room",r); return u.href;
 }
 
-function roomFromUrl() {
-  return new URLSearchParams(location.search).get("room");
+function addMessage(text,mine){
+  const d=document.createElement("div");
+  d.className="msg "+(mine?"mine":"theirs"); d.textContent=text;
+  messages.appendChild(d); messages.scrollTop=messages.scrollHeight;
 }
 
-function makeInvite(room) {
-  const url = new URL(location.href);
-  url.search = "";
-  url.hash = "";
-  url.searchParams.set("room", room);
-  return url.href;
+function system(text){
+  const d=document.createElement("div"); d.className="system"; d.textContent=text;
+  messages.appendChild(d); messages.scrollTop=messages.scrollHeight;
 }
 
-function addMessage(text, mine) {
-  const div = document.createElement("div");
-  div.className = "msg " + (mine ? "mine" : "theirs");
-  div.textContent = text;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
+function showChat(){
+  waiting.classList.add("hidden"); home.classList.add("hidden");
+  chat.classList.remove("hidden"); copyLink.classList.remove("hidden");
+  messageInput.focus();
 }
 
-function system(text) {
-  const div = document.createElement("div");
-  div.className = "system";
-  div.textContent = text;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function openChat(conn) {
-  connection = conn;
-
-  conn.on("open", () => {
+function attachConnection(conn){
+  connection=conn;
+  conn.on("open",()=>{
+    clearTimeout(reconnectTimer);
     setStatus("Online");
-    waiting.classList.add("hidden");
-    home.classList.add("hidden");
-    chat.classList.remove("hidden");
-    copyLink.classList.remove("hidden");
-    system("Connected. Messages are sent peer-to-peer.");
-    messageInput.focus();
+    showChat();
+    if(!messages.querySelector(".system")) system("Connected. Messages are sent peer-to-peer.");
   });
-
-  conn.on("data", data => {
-    if (typeof data === "string") addMessage(data, false);
+  conn.on("data",data=>{if(typeof data==="string") addMessage(data,false);});
+  conn.on("close",()=>{
+    connection=null; setStatus("Reconnecting…");
+    system("Connection lost. Trying to reconnect…");
+    scheduleReconnect();
   });
-
-  conn.on("close", () => {
-    setStatus("Disconnected");
-    system("The other person disconnected.");
-  });
-
-  conn.on("error", err => {
-    console.error(err);
-    setStatus("Connection error");
+  conn.on("error",err=>{
+    console.warn("Peer connection error",err);
+    setStatus("Reconnecting…");
+    scheduleReconnect();
   });
 }
 
-function startCreator(room) {
-  isCreator = true;
-  setStatus("Waiting…");
-  waiting.classList.remove("hidden");
-  home.classList.add("hidden");
+function scheduleReconnect(){
+  if(reconnectTimer) return;
+  reconnectTimer=setTimeout(()=>{
+    reconnectTimer=null;
+    if(role==="guest") connectGuest();
+  },3000);
+}
 
-  const link = makeInvite(room);
-  inviteLink.textContent = link;
+function startCreator(r){
+  role="creator"; room=r; setStatus("Starting…");
+  waiting.classList.remove("hidden"); home.classList.add("hidden");
+  inviteLink.textContent=makeInvite(r);
 
-  peer = new Peer("pc-" + room, {
-    debug: 1
+  peer=new Peer("pc-"+r,PEER_OPTIONS);
+
+  peer.on("open",()=>setStatus("Waiting…"));
+  peer.on("connection",conn=>attachConnection(conn));
+  peer.on("disconnected",()=>{
+    setStatus("Reconnecting service…");
+    peer.reconnect();
   });
-
-  peer.on("open", () => {
-    setStatus("Waiting…");
-  });
-
-  peer.on("connection", conn => {
-    openChat(conn);
-  });
-
-  peer.on("error", err => {
+  peer.on("close",()=>setStatus("Offline"));
+  peer.on("error",err=>{
     console.error(err);
-    setStatus(err.type === "unavailable-id" ? "Please create again" : "Connection error");
+    if(err.type==="unavailable-id") {
+      setStatus("Room unavailable");
+      system("This room ID is already in use. Create a new chat.");
+    } else {
+      setStatus("Connection error");
+    }
   });
 }
 
-function startGuest(room) {
-  isCreator = false;
-  home.classList.add("hidden");
-  waiting.classList.add("hidden");
+function connectGuest(){
+  if(!peer || peer.destroyed) return;
+  setStatus("Connecting…");
+  const conn=peer.connect("pc-"+room,{reliable:true,serialization:"json"});
+  attachConnection(conn);
+}
+
+function startGuest(r){
+  role="guest"; room=r; home.classList.add("hidden"); waiting.classList.add("hidden");
   setStatus("Connecting…");
 
-  peer = new Peer(undefined, { debug: 1 });
+  peer=new Peer(undefined,PEER_OPTIONS);
 
-  peer.on("open", () => {
-    const conn = peer.connect("pc-" + room, { reliable: true });
-    openChat(conn);
+  peer.on("open",connectGuest);
+  peer.on("disconnected",()=>{
+    setStatus("Reconnecting service…");
+    peer.reconnect();
   });
-
-  peer.on("error", err => {
-    console.error(err);
-    setStatus("Could not connect");
-    system("The chat owner may not be online yet. Refresh the page after they open the chat.");
+  peer.on("close",()=>setStatus("Offline"));
+  peer.on("error",err=>{
+    console.warn(err);
+    setStatus("Waiting for chat…");
+    scheduleReconnect();
   });
 }
 
-$("create").addEventListener("click", () => {
-  const room = randomId();
+$("create").addEventListener("click",()=>{
+  room=randomId();
   history.replaceState({}, "", makeInvite(room));
   startCreator(room);
 });
 
-copyInvite.addEventListener("click", async () => {
-  const text = inviteLink.textContent;
-  try {
-    await navigator.clipboard.writeText(text);
-    copyInvite.textContent = "Copied";
-    setTimeout(() => copyInvite.textContent = "Copy link", 1200);
-  } catch {
-    prompt("Copy this link:", text);
-  }
+copyInvite.addEventListener("click",async()=>{
+  try{await navigator.clipboard.writeText(inviteLink.textContent);}
+  catch{prompt("Copy this link:",inviteLink.textContent);}
+  copyInvite.textContent="Copied";
+  setTimeout(()=>copyInvite.textContent="Copy link",1200);
 });
 
-copyLink.addEventListener("click", async () => {
-  const text = location.href;
-  try {
-    await navigator.clipboard.writeText(text);
-    copyLink.textContent = "Copied";
-    setTimeout(() => copyLink.textContent = "Copy link", 1200);
-  } catch {
-    prompt("Copy this link:", text);
-  }
+copyLink.addEventListener("click",async()=>{
+  try{await navigator.clipboard.writeText(location.href);}
+  catch{prompt("Copy this link:",location.href);}
+  copyLink.textContent="Copied";
+  setTimeout(()=>copyLink.textContent="Copy link",1200);
 });
 
-$("composer").addEventListener("submit", event => {
-  event.preventDefault();
-  const text = messageInput.value.trim();
-  if (!text || !connection || !connection.open) return;
-  connection.send(text);
-  addMessage(text, true);
-  messageInput.value = "";
+$("composer").addEventListener("submit",e=>{
+  e.preventDefault();
+  const text=messageInput.value.trim();
+  if(!text||!connection||!connection.open)return;
+  connection.send(text); addMessage(text,true); messageInput.value=""; messageInput.focus();
 });
 
-const existingRoom = roomFromUrl();
-if (existingRoom) {
-  startGuest(existingRoom);
-} else {
-  setStatus("Offline");
-}
+room=roomFromUrl();
+if(room) startGuest(room);
+else setStatus("Offline");
+
+window.addEventListener("beforeunload",()=>{
+  if(peer) peer.destroy();
+});
