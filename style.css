@@ -1,0 +1,138 @@
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #222;
+}
+
+.container {
+    width: 100%;
+    max-width: 650px;
+    margin: 40px auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header h1 { margin: 0; font-size: 20px; }
+
+.status {
+    font-size: 13px;
+    padding: 5px 9px;
+    border-radius: 20px;
+}
+
+.connected { background: #dff7e5; color: #16723a; }
+.disconnected { background: #eee; color: #666; }
+
+#setup { padding: 25px; }
+
+.description { color: #666; line-height: 1.5; }
+
+h3 { margin-top: 25px; font-size: 15px; }
+
+textarea {
+    width: 100%;
+    min-height: 110px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 7px;
+    background: #222;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover { opacity: 0.85; }
+
+.hidden { display: none !important; }
+
+#chat {
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+#messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.message {
+    margin-bottom: 12px;
+    max-width: 75%;
+    padding: 10px 13px;
+    border-radius: 12px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.mine {
+    margin-left: auto;
+    background: #222;
+    color: white;
+    border-bottom-right-radius: 3px;
+}
+
+.theirs {
+    margin-right: auto;
+    background: #eee;
+    color: #222;
+    border-bottom-left-radius: 3px;
+}
+
+.system {
+    margin: 10px auto;
+    text-align: center;
+    color: #888;
+    font-size: 12px;
+}
+
+.input-area {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    gap: 8px;
+}
+
+#messageInput {
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    padding: 11px;
+    font-size: 15px;
+}
+
+#sendBtn { margin: 0; }
+
+@media (max-width: 700px) {
+    .container {
+        margin: 0;
+        min-height: 100vh;
+        border-radius: 0;
+    }
+
+    #chat { height: calc(100vh - 65px); }
+    #setup { padding: 20px; }
+}
