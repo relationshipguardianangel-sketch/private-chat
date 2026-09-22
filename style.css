@@ -2,17 +2,12 @@
 body{margin:0;background:#f4f5f7;color:#171717;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .app{width:min(680px,100%);height:100vh;margin:auto;background:#fff;display:flex;flex-direction:column}
 .top{padding:16px 18px;border-bottom:1px solid #e5e5e5;display:flex;justify-content:space-between;align-items:center}
-h1{font-size:20px;margin:0 0 3px}
-.status{font-size:12px;color:#777}
-.card{padding:24px 18px}
-.muted{color:#6b6b6b;line-height:1.5}
-.small{font-size:13px}
+h1{font-size:20px;margin:0 0 3px}.status{font-size:12px;color:#777}
+.card{padding:24px 18px}.muted{color:#6b6b6b;line-height:1.5}.small{font-size:13px}
 button{border:0;border-radius:9px;padding:11px 15px;background:#111;color:#fff;font-size:14px;cursor:pointer}
-button.secondary{background:#eee;color:#222}
-.hidden{display:none!important}
+button.secondary{background:#eee;color:#222}.hidden{display:none!important}
 .linkbox{padding:12px;border:1px solid #ddd;border-radius:9px;background:#fafafa;word-break:break-all;font-size:13px;margin:12px 0}
-.chat{flex:1;min-height:0;display:flex;flex-direction:column}
-.messages{flex:1;overflow:auto;padding:18px}
+.chat{flex:1;min-height:0;display:flex;flex-direction:column}.messages{flex:1;overflow:auto;padding:18px}
 .msg{max-width:78%;padding:9px 12px;margin:0 0 9px;border-radius:13px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}
 .mine{margin-left:auto;background:#111;color:#fff;border-bottom-right-radius:4px}
 .theirs{background:#eee;color:#222;border-bottom-left-radius:4px}
